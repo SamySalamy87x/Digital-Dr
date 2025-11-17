@@ -44,13 +44,25 @@ app.get('/api/v1/status', (req, res) => {
 // const appointmentRoutes = require('./routes/appointments');
 // const gptRoutes = require('./routes/gpt');
 // const paypalRoutes = require('./routes/paypal');
-
+// Import route files
+const authRoutes = require('./routes/auth');
+const patientRoutes = require('./routes/patients');
+const appointmentRoutes = require('./routes/appointments');
+const medicalRecordRoutes = require('./routes/medical-records');
+const gptRoutes = require('./routes/gpt');
+const paypalRoutes = require('./routes/paypal');
 // app.use('/api/v1/auth', authRoutes);
 // app.use('/api/v1/patients', patientRoutes);
 // app.use('/api/v1/appointments', appointmentRoutes);
 // app.use('/api/v1/gpt', gptRoutes);
 // app.use('/api/v1/paypal', paypalRoutes);
-
+// Use routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/patients', patientRoutes);
+app.use('/api/v1/appointments', appointmentRoutes);
+app.use('/api/v1/medical-records', medicalRecordRoutes);
+app.use('/api/v1/gpt', gptRoutes);
+app.use('/api/v1/subscriptions', paypalRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
