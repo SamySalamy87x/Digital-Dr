@@ -51,6 +51,10 @@ const appointmentRoutes = require('./routes/appointments');
 const medicalRecordRoutes = require('./routes/medical-records');
 const gptRoutes = require('./routes/gpt');
 const paypalRoutes = require('./routes/paypal');
+const patientAuthRoutes = require('./routes/patients-auth');
+const searchRoutes = require('./routes/search');
+const availabilityRoutes = require('./routes/doctors-availability');
+const notificationRoutes = require('./routes/notifications');
 // app.use('/api/v1/auth', authRoutes);
 // app.use('/api/v1/patients', patientRoutes);
 // app.use('/api/v1/appointments', appointmentRoutes);
@@ -63,6 +67,10 @@ app.use('/api/v1/appointments', appointmentRoutes);
 app.use('/api/v1/medical-records', medicalRecordRoutes);
 app.use('/api/v1/gpt', gptRoutes);
 app.use('/api/v1/subscriptions', paypalRoutes);
+app.use('/api/v1/patients-auth', patientAuthRoutes);
+app.use('/api/v1/search', searchRoutes);
+app.use('/api/v1/availability', availabilityRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
