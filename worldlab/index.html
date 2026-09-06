@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<title>OMROS World Lab // Phase 01</title>
+<style>
+:root{--bg:#05070b;--panel:rgba(8,12,18,.72);--line:rgba(255,255,255,.14);--text:#eef8ff;--muted:#8aa0ad;--accent:#55ffd7;--accent2:#ff4fa7}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button{font:inherit;color:inherit}
+#app{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,rgba(20,57,61,.18),transparent 40%),#020305}
+canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:auto;background:#030509}
+.vignette{pointer-events:none;position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.34) 72%,rgba(0,0,0,.85) 100%);mix-blend-mode:multiply}
+.scan{pointer-events:none;position:absolute;inset:0;opacity:.12;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0,rgba(255,255,255,.035) 1px,transparent 1px,transparent 4px)}
+.topbar{position:absolute;top:max(14px,env(safe-area-inset-top));left:16px;right:16px;display:flex;gap:10px;justify-content:space-between;align-items:flex-start;pointer-events:none}
+.brand,.hudbox,.mode{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 16px 42px rgba(0,0,0,.28);border-radius:16px}
+.brand{padding:12px 14px;min-width:230px}.eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}.title{font-size:17px;font-weight:750;letter-spacing:.02em;margin-top:4px}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+.hudbox{padding:10px 12px;display:flex;gap:14px;align-items:center}.stat{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}.stat b{display:block;color:var(--text);font-size:12px;letter-spacing:.02em;margin-top:2px;font-weight:650}
+.crosshair{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none}.crosshair:before,.crosshair:after{content:"";position:absolute;background:rgba(255,255,255,.75);box-shadow:0 0 8px var(--accent)}.crosshair:before{width:1px;height:18px;left:8px}.crosshair:after{height:1px;width:18px;top:8px}
+.zone{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:rgba(5,10,16,.68);border:1px solid var(--line);backdrop-filter:blur(16px);font-size:11px;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap;transition:.25s}
+.controls{position:absolute;left:16px;bottom:max(16px,env(safe-area-inset-bottom));display:flex;gap:8px;align-items:end}.pad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:44px 44px;gap:5px}.pad button,.actionbar button{border:1px solid var(--line);background:rgba(6,10,16,.74);backdrop-filter:blur(14px);border-radius:13px;min-width:44px;min-height:44px;box-shadow:0 10px 24px rgba(0,0,0,.22);touch-action:none}.pad button:active,.actionbar button:active{background:rgba(255,255,255,.13)}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.actionbar{position:absolute;right:16px;bottom:max(16px,env(safe-area-inset-bottom));display:flex;gap:8px}.actionbar button{padding:0 14px;min-width:auto;font-size:11px;letter-spacing:.1em;text-transform:uppercase}.actionbar .primary{border-color:color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--accent) 15%,transparent)}
+.legend{position:absolute;right:16px;top:96px;width:190px;padding:11px 12px;border:1px solid var(--line);background:rgba(5,9,14,.62);backdrop-filter:blur(14px);border-radius:14px;font-size:10px;color:var(--muted);line-height:1.5}.legend b{color:var(--text)}
+.intro{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(20,62,68,.33),rgba(0,0,0,.88));z-index:5;transition:.45s}.intro.hidden{opacity:0;pointer-events:none}.card{width:min(520px,calc(100% - 32px));padding:26px;border-radius:24px;border:1px solid var(--line);background:rgba(5,9,14,.8);backdrop-filter:blur(22px);box-shadow:0 30px 90px rgba(0,0,0,.5)}.card h1{font-size:clamp(28px,7vw,56px);line-height:.94;margin:10px 0 12px;letter-spacing:-.04em}.card p{color:#a7bac6;line-height:1.55;font-size:13px}.card .chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.chip{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:10px;color:#b7c7d0;background:rgba(255,255,255,.035)}.enter{width:100%;border:0;border-radius:15px;padding:14px 16px;background:linear-gradient(90deg,var(--accent),#73b7ff);color:#02110f;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 34px color-mix(in srgb,var(--accent) 22%,transparent)}.note{font-size:10px;color:#70848e;margin-top:10px;text-align:center}
+@media (max-width:700px){.legend{display:none}.hudbox{display:none}.brand{min-width:auto}.brand .sub{display:none}.zone{bottom:92px}.actionbar{bottom:max(14px,env(safe-area-inset-bottom))}.controls{bottom:max(14px,env(safe-area-inset-bottom))}.actionbar button{padding:0 10px}.card{padding:22px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="view"></canvas>
+  <div class="vignette"></div><div class="scan"></div><div class="crosshair"></div>
+  <div class="topbar">
+    <div class="brand"><div class="eyebrow">OMROS WORLD ENGINE</div><div class="title">World Lab // Phase 01</div><div class="sub" id="modeSub">Aquatic open-concept prototype</div></div>
+    <div class="hudbox"><div class="stat">Zone<b id="zoneHud">Atrium</b></div><div class="stat">World<b id="worldHud">Open Concept</b></div><div class="stat">FPS<b id="fpsHud">60</b></div></div>
+  </div>
+  <div class="legend"><b>Navigation</b><br>WASD / arrows · drag or Q/E to look<br><br><b>World switch</b><br>Portal toggles between aquatic and glossy apartment atmospheres.</div>
+  <div class="zone" id="zone">ATRIUM // SIGNAL STABLE</div>
+  <div class="controls"><div class="pad">
+    <button class="up" data-key="ArrowUp">▲</button><button class="left" data-key="ArrowLeft">◀</button><button class="down" data-key="ArrowDown">▼</button><button class="right" data-key="ArrowRight">▶</button>
+  </div></div>
+  <div class="actionbar"><button id="pulse">Pulse</button><button class="primary" id="portal">Switch World</button></div>
+  <div class="intro" id="intro"><div class="card">
+    <div class="eyebrow">DIGITAL DR × OMROSLAB</div>
+    <h1>Spatial prototype,<br>built to move.</h1>
+    <p>An original lightweight environment derived from your Open Concept Home + Apartment 12 direction. It does not redistribute the purchased Jinxxy packages; it gives us a deployable interaction layer now while the authenticated Unity packages remain in your inventory.</p>
+    <div class="chips"><span class="chip">No external libraries</span><span class="chip">Mobile controls</span><span class="chip">Procedural 3D</span><span class="chip">Portal modes</span></div>
+    <button class="enter" id="enter">Enter World Lab</button>
+    <div class="note">Desktop: WASD + mouse drag · Mobile: directional pad</div>
+  </div></div>
+</div>
+<script>
+(() => {
+'use strict';
+const canvas=document.getElementById('view'),ctx=canvas.getContext('2d',{alpha:false});
+const zoneEl=document.getElementById('zone'),zoneHud=document.getElementById('zoneHud'),worldHud=document.getElementById('worldHud'),modeSub=document.getElementById('modeSub'),fpsHud=document.getElementById('fpsHud');
+const MAP=[
+'11111111111111111111','10000000000000000001','10000000000000000001','10002222000003333001','10002002000003003001','10002002000003003001','10000000000000000001','10000001111000000001','10000001001000000001','10000001001000000001','10000001001000444001','10000001001000404001','10000000000000404001','10000000000000444001','10000111110000000001','10000100010000000001','10000100000000000001','10000000000000000001','10000000000000000001','11111111111111111111'];
+const W=MAP[0].length,H=MAP.length; let px=3.6,py=3.0,pa=.2; let theme=0,pulse=0; const keys={}; let dragging=false,lastX=0;
+const themes=[
+ {name:'Open Concept',sub:'Aquatic open-concept prototype',sky1:'#071820',sky2:'#03070b',floor1:'#04110f',floor2:'#020404',fog:[4,22,21],walls:{1:[28,114,105],2:[49,220,173],3:[63,132,156],4:[82,238,203]},accent:'#55ffd7',zoneSuffix:'SIGNAL STABLE'},
+ {name:'Apartment 12',sub:'Gloss apartment / audiolink-inspired prototype',sky1:'#1a0816',sky2:'#070308',floor1:'#120511',floor2:'#030203',fog:[32,7,24],walls:{1:[138,44,99],2:[252,73,156],3:[150,73,220],4:[255,126,202]},accent:'#ff4fa7',zoneSuffix:'AUDIO PULSE'}
+];
+function resize(){const d=Math.min(devicePixelRatio||1,1.6);canvas.width=Math.max(320,innerWidth*d);canvas.height=Math.max(180,innerHeight*d)} addEventListener('resize',resize);resize();
+function cell(x,y){x|=0;y|=0;if(x<0||y<0||x>=W||y>=H)return 1;return +MAP[y][x]}
+function canMove(x,y){return cell(x,y)===0}
+function zoneName(){if(py<7&&px<8)return 'Atrium'; if(py<7&&px>=8)return 'Glass Gallery'; if(py>=7&&py<14&&px<12)return 'Resonance Hall'; if(py>=9&&px>=12)return 'Portal Suite'; if(py>=14&&px<10)return 'Sleep Deck'; return 'Open Lounge'}
+function shade(rgb,k){return `rgb(${Math.max(0,rgb[0]*k)|0},${Math.max(0,rgb[1]*k)|0},${Math.max(0,rgb[2]*k)|0})`}
+function render(){
+ const w=canvas.width,h=canvas.height,t=themes[theme],horizon=h*.5;
+ let g=ctx.createLinearGradient(0,0,0,horizon);g.addColorStop(0,t.sky1);g.addColorStop(1,t.sky2);ctx.fillStyle=g;ctx.fillRect(0,0,w,horizon);
+ g=ctx.createLinearGradient(0,horizon,0,h);g.addColorStop(0,t.floor1);g.addColorStop(1,t.floor2);ctx.fillStyle=g;ctx.fillRect(0,horizon,w,h-horizon);
+ const rays=Math.min(620,Math.max(260,(w/2)|0)),fov=Math.PI/2.75,colW=w/rays;
+ for(let i=0;i<rays;i++){
+   const ra=pa-fov/2+(i/rays)*fov; let mapX=Math.floor(px),mapY=Math.floor(py); const dx=Math.cos(ra),dy=Math.sin(ra);
+   const ddx=Math.abs(1/(dx||1e-6)),ddy=Math.abs(1/(dy||1e-6)); let stepX,stepY,sdx,sdy;
+   if(dx<0){stepX=-1;sdx=(px-mapX)*ddx}else{stepX=1;sdx=(mapX+1-px)*ddx}
+   if(dy<0){stepY=-1;sdy=(py-mapY)*ddy}else{stepY=1;sdy=(mapY+1-py)*ddy}
+   let hit=0,side=0,guard=0;
+   while(!hit&&guard++<64){if(sdx<sdy){sdx+=ddx;mapX+=stepX;side=0}else{sdy+=ddy;mapY+=stepY;side=1}hit=cell(mapX,mapY)}
+   let dist=side===0?(mapX-px+(1-stepX)/2)/(dx||1e-6):(mapY-py+(1-stepY)/2)/(dy||1e-6);dist=Math.max(.001,dist*Math.cos(ra-pa));
+   const wallH=Math.min(h*1.7,h/dist*1.02),y0=horizon-wallH/2;
+   const base=t.walls[hit]||t.walls[1], depth=Math.max(.18,1-dist/16), edge=side?.72:1, shimmer=1+(Math.sin(performance.now()*.003+mapX*2+mapY)*.06*pulse);
+   ctx.fillStyle=shade(base,depth*edge*shimmer);ctx.fillRect(i*colW,y0,colW+1,wallH);
+   if(hit===2||hit===4){ctx.fillStyle=`rgba(255,255,255,${Math.max(0,.16-dist*.008)})`;ctx.fillRect(i*colW,y0,colW+1,Math.max(1,wallH*.012))}
+ }
+ ctx.globalCompositeOperation='screen';ctx.globalAlpha=.17+.12*pulse;ctx.strokeStyle=t.accent;ctx.lineWidth=1;
+ for(let k=1;k<9;k++){const yy=horizon+(h-horizon)*(k/9)**1.65;ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke()}
+ ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+ const now=performance.now()*.0004;for(let i=0;i<24;i++){const x=(Math.sin(i*12.23+now*(1+i%3))*0.5+0.5)*w,y=(Math.cos(i*4.71-now)*0.5+0.5)*h*.72;ctx.fillStyle=i%2?`${t.accent}66`:'#ffffff24';ctx.fillRect(x,y,1.4+(i%3),1.4+(i%3))}
+}
+function update(dt){
+ const speed=dt*2.45,rot=dt*1.7; if(keys.ArrowLeft||keys.q)pa-=rot;if(keys.ArrowRight||keys.e)pa+=rot;
+ let mv=0,strafe=0;if(keys.ArrowUp||keys.w)mv+=speed;if(keys.ArrowDown||keys.s)mv-=speed;if(keys.a)strafe-=speed;if(keys.d)strafe+=speed;
+ let nx=px+Math.cos(pa)*mv+Math.cos(pa+Math.PI/2)*strafe,ny=py+Math.sin(pa)*mv+Math.sin(pa+Math.PI/2)*strafe;
+ const r=.2;if(canMove(nx+r*Math.sign(nx-px),py))px=nx;if(canMove(px,ny+r*Math.sign(ny-py)))py=ny;
+ pulse+=(keys.Shift?1:0)*dt*1.8;pulse*=Math.pow(.18,dt);pulse=Math.min(1,pulse);
+ const z=zoneName();zoneHud.textContent=z;zoneEl.textContent=(z+' // '+themes[theme].zoneSuffix).toUpperCase();
+}
+let prev=performance.now(),frames=0,fpsT=prev;
+function loop(now){const dt=Math.min(.035,(now-prev)/1000);prev=now;update(dt);render();frames++;if(now-fpsT>700){fpsHud.textContent=Math.round(frames*1000/(now-fpsT));frames=0;fpsT=now}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+addEventListener('keydown',e=>{keys[e.key.length===1?e.key.toLowerCase():e.key]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault()},{passive:false});addEventListener('keyup',e=>keys[e.key.length===1?e.key.toLowerCase():e.key]=false);
+for(const b of document.querySelectorAll('[data-key]')){const k=b.dataset.key;const on=e=>{e.preventDefault();keys[k]=true};const off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off)}
+canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX;lastX=e.clientX;pa+=dx*.005});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
+document.getElementById('pulse').onclick=()=>{pulse=1};document.getElementById('portal').onclick=()=>{theme=1-theme;const t=themes[theme];document.documentElement.style.setProperty('--accent',t.accent);worldHud.textContent=t.name;modeSub.textContent=t.sub;pulse=1};document.getElementById('enter').onclick=()=>{document.getElementById('intro').classList.add('hidden');pulse=1};
+})();
+</script>
+</body>
+</html>
