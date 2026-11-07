@@ -38,13 +38,6 @@ app.get('/api/v1/status', (req, res) => {
   });
 });
 
-// TODO: Import and use routes
-// const authRoutes = require('./routes/auth');
-// const patientRoutes = require('./routes/patients');
-// const appointmentRoutes = require('./routes/appointments');
-// const gptRoutes = require('./routes/gpt');
-// const paypalRoutes = require('./routes/paypal');
-// Import route files
 const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const appointmentRoutes = require('./routes/appointments');
@@ -55,11 +48,6 @@ const patientAuthRoutes = require('./routes/patients-auth');
 const searchRoutes = require('./routes/search');
 const availabilityRoutes = require('./routes/doctors-availability');
 const notificationRoutes = require('./routes/notifications');
-// app.use('/api/v1/auth', authRoutes);
-// app.use('/api/v1/patients', patientRoutes);
-// app.use('/api/v1/appointments', appointmentRoutes);
-// app.use('/api/v1/gpt', gptRoutes);
-// app.use('/api/v1/paypal', paypalRoutes);
 // Use routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/patients', patientRoutes);
@@ -90,8 +78,8 @@ app.use((req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server only when run directly, so the app can be imported in tests
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Digital Dr Backend server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Timestamp: ${new Date().toISOString()}`);
